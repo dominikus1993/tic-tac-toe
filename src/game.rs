@@ -124,21 +124,20 @@ mod tests {
 
     #[test]
     fn test_move_is_valid_when_coordinate_is_not_empty(){
-        let mut board = Board::empty();
-        board.fields[0][0] = FieldType::X;
+        let board = Board::empty();
         assert!(!board.move_is_valid(Coordinate(0, 0)));
     }
 
     #[test]
     fn test_set_field() {
-        let mut board = Board::empty();
+        let board = Board::empty();
         let subject = board.set_field(Coordinate(0, 0), FieldType::X).unwrap();
         assert_eq!(FieldType::X, subject.fields[0][0]);
     }
 
     #[test]
     fn test_set_field_when_coordinates_is_invalid() {
-        let mut board = Board::empty();
+        let board = Board::empty();
         let result = board.set_field(Coordinate(0, 5), FieldType::X);
         assert!(result.is_err());
     }
