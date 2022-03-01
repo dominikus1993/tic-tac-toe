@@ -48,7 +48,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_print_empty_board() {
+    fn test_format_empty_board() {
         let expected = r#"   |   |   
 ---+---+---
    |   |   
@@ -56,6 +56,22 @@ mod tests {
    |   |   
 "#;
         let board = Board::empty();
+        let subject = board.format_board();
+        assert_eq!(expected, subject);
+    }
+
+    #[test]
+    fn test_format_non_empty_board() {
+        let expected = r#" X |   |   
+---+---+---
+   | O |   
+---+---+---
+   |   | X 
+"#;
+        let mut board = Board::empty();
+        board.fields[0][0] = FieldType::X;
+        board.fields[1][1] = FieldType::O;
+        board.fields[2][2] = FieldType::X;
         let subject = board.format_board();
         assert_eq!(expected, subject);
     }
