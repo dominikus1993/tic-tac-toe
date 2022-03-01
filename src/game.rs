@@ -1,4 +1,9 @@
-use std::fmt::{self, Debug, Display};
+use std::{fmt::{self, Debug, Display}};
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Errors {
+    InvalidCoordinatres,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FieldType {
@@ -7,7 +12,8 @@ pub enum FieldType {
     Empty
 }
 
-struct Coordinate(usize, usize);
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Coordinate(pub usize, pub usize);
 
 impl FieldType {
     pub fn format(&self) -> String {
@@ -19,8 +25,9 @@ impl FieldType {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Board {
-    pub fields: [[FieldType; 3]; 3]
+    fields: [[FieldType; 3]; 3]
 }
 
 impl Board {
@@ -34,6 +41,16 @@ impl Board {
     fn move_is_valid(&self, coordinate: Coordinate) -> bool {
         let Coordinate(x, y) = coordinate;
         x < 3 && y < 3 && self.fields[x][y] == FieldType::Empty
+    }
+
+    pub fn set_field(&self, coordinate: Coordinate, field_type: FieldType) -> Result<Board, Errors> {
+        let Coordinate(x, y) = coordinate;
+        if self.move_is_valid(coordinate) {
+            let mut arr = self.fields;
+            arr[x][y] = field_type;
+            return Ok(Board{ fields: arr });
+        }
+        return Err(Errors::InvalidCoordinatres)
     }
 
     pub fn format_board(&self) -> String {
@@ -110,5 +127,19 @@ mod tests {
         let mut board = Board::empty();
         board.fields[0][0] = FieldType::X;
         assert!(!board.move_is_valid(Coordinate(0, 0)));
+    }
+
+    #[test]
+    fn test_set_field() {
+        let mut board = Board::empty();
+        let subject = board.set_field(Coordinate(0, 0), FieldType::X).unwrap();
+        assert_eq!(FieldType::X, subject.fields[0][0]);
+    }
+
+    #[test]
+    fn test_set_field_when_coordinates_is_invalid() {
+        let mut board = Board::empty();
+        let result = board.set_field(Coordinate(0, 5), FieldType::X);
+        assert!(result.is_err());
     }
 }
