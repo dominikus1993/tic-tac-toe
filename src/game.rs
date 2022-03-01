@@ -1,11 +1,13 @@
 use std::fmt::{self, Debug, Display};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FieldType {
     X,
     O,
     Empty
 }
+
+struct Coordinate(usize, usize);
 
 impl FieldType {
     pub fn format(&self) -> String {
@@ -27,6 +29,11 @@ impl Board {
         Board {
             fields: [[FieldType::Empty; 3]; 3]
         }
+    }
+
+    fn move_is_valid(&self, coordinate: Coordinate) -> bool {
+        let Coordinate(x, y) = coordinate;
+        x < 3 && y < 3 && self.fields[x][y] == FieldType::Empty
     }
 
     pub fn format_board(&self) -> String {
@@ -74,5 +81,34 @@ mod tests {
         board.fields[2][2] = FieldType::X;
         let subject = board.format_board();
         assert_eq!(expected, subject);
+    }
+
+    #[test]
+    fn test_move_is_valid() {
+        let board = Board::empty();
+        assert!(board.move_is_valid(Coordinate(0, 0)));
+        assert!(board.move_is_valid(Coordinate(0, 1)));
+        assert!(board.move_is_valid(Coordinate(0, 2)));
+        assert!(board.move_is_valid(Coordinate(1, 0)));
+        assert!(board.move_is_valid(Coordinate(1, 1)));
+        assert!(board.move_is_valid(Coordinate(1, 2)));
+        assert!(board.move_is_valid(Coordinate(2, 0)));
+        assert!(board.move_is_valid(Coordinate(2, 1)));
+        assert!(board.move_is_valid(Coordinate(2, 2)));
+    }
+
+    #[test]
+    fn test_move_is_valid_when_coordinate_is_out_of_bound(){
+        let board = Board::empty();
+        assert!(!board.move_is_valid(Coordinate(3, 0)));
+        assert!(!board.move_is_valid(Coordinate(0, 3)));
+        assert!(!board.move_is_valid(Coordinate(3, 3)));
+    }
+
+    #[test]
+    fn test_move_is_valid_when_coordinate_is_not_empty(){
+        let mut board = Board::empty();
+        board.fields[0][0] = FieldType::X;
+        assert!(!board.move_is_valid(Coordinate(0, 0)));
     }
 }
