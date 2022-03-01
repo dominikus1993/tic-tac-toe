@@ -48,9 +48,9 @@ impl Board {
         if self.move_is_valid(coordinate) {
             let mut arr = self.fields;
             arr[x][y] = field_type;
-            return Ok(Board{ fields: arr });
+            return Ok(Board{ fields: arr })
         }
-        return Err(Errors::InvalidCoordinatres)
+        Err(Errors::InvalidCoordinatres)
     }
 
     pub fn format_board(&self) -> String {
