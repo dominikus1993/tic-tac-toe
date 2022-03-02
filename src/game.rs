@@ -155,7 +155,7 @@ impl Board {
         o_count = 0;
 
         for i in 0..self.n {
-            match self.fields[i][i] {
+            match self.get(Coordinate(i, (self.n - 1) - i)) {
                 FieldType::X => x_count += 1,
                 FieldType::O => o_count += 1,
                 FieldType::Empty => {}
@@ -173,6 +173,10 @@ impl Board {
         let rows_result = self.check_rows();
         if rows_result != GameResults::InProgress {
             return rows_result;
+        }
+        let diag_result = self.check_diag();
+        if diag_result != GameResults::InProgress {
+            return diag_result;
         }
         if self.move_count == (self.n * self.n) {
             return GameResults::Draw;
@@ -290,6 +294,7 @@ mod tests {
     #[test]
     fn test_move_is_valid_when_coordinate_is_not_empty() {
         let board = Board::empty();
+        let board = board.move_next(Coordinate(0, 0), FieldType::X).unwrap();
         assert!(!board.move_is_valid(Coordinate(0, 0)));
     }
 
@@ -358,5 +363,48 @@ mod tests {
         let board = board.move_next(Coordinate(1, 0), FieldType::O).unwrap();
         let board = board.move_next(Coordinate(1, 1), FieldType::O).unwrap();
         assert_eq!(board.check_rows(), GameResults::InProgress);
+    }
+
+    //dssd
+
+    #[test]
+    fn test_check_diag_result() {
+        let board = Board::empty();
+        let board = board.move_next(Coordinate(0, 0), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(1, 1), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(2, 2), FieldType::X).unwrap();
+        assert_eq!(board.check_diag(), GameResults::XWon);
+    }
+
+    #[test]
+    fn test_check_diag_result_when_o_wins() {
+        let board = Board::empty();
+        let board = board.move_next(Coordinate(2, 0), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 1), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(0, 2), FieldType::O).unwrap();
+        assert_eq!(board.check_diag(), GameResults::OWon);
+    }
+
+    #[test]
+    fn test_check_diag_result_when_in_progress() {
+        let board = Board::empty();
+        let board = board.move_next(Coordinate(0, 0), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 1), FieldType::O).unwrap();
+        assert_eq!(board.check_diag(), GameResults::InProgress);
+    }
+
+    #[test]
+    fn test_draw_result() {
+        let board = Board::empty();
+        let board = board.move_next(Coordinate(0,0), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1,0), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(2,0), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1,1), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(2,1), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(0,2), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(1,2), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(2,2), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0,1), FieldType::O).unwrap();
+        assert_eq!(board.check_game_result(), GameResults::Draw);
     }
 }
