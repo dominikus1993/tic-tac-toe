@@ -5,10 +5,10 @@ type Result<T> = std::result::Result<T, Errors>;
 
 fn main() -> Result<()>{
     let board = Board::empty();
-    let a = board.set_field(Coordinate(0,0), FieldType::X)?;
-    let b = a.set_field(Coordinate(1,0), FieldType::O)?;
-    let final_board = b.set_field(Coordinate(2,0), FieldType::X)?;
-    let board_str = final_board.format_board();
+    let board = board.move_next(Coordinate(0,1), FieldType::O)?;
+    let board = board.move_next(Coordinate(1,1), FieldType::O)?;
+    let board = board.move_next(Coordinate(2,1), FieldType::O)?;
+    let board_str = board.format_board();
 
     println!("{}", board_str);
     Ok(())
