@@ -1,5 +1,5 @@
-mod game;
-use game::*;
+mod board;
+use board::*;
 
 type Result<T> = std::result::Result<T, Errors>;
 
