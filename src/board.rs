@@ -81,11 +81,11 @@ impl Board {
         Err(Errors::InvalidCoordinatres)
     }
 
-    fn check_result(&self, (x_count, o_count): (i32, i32)) -> GameResults {
-        if x_count == 3 {
+    fn check_result(&self, (x_count, o_count): (usize, usize)) -> GameResults {
+        if x_count == self.n {
             return GameResults::XWon;
         }
-        if o_count == 3 {
+        if o_count == self.n {
             return GameResults::OWon;
         }
         GameResults::InProgress
