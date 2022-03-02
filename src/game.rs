@@ -1,4 +1,8 @@
-use std::{fmt::{self, Debug, Display}, f32::consts::E, collections::HashMap};
+use std::{
+    collections::HashMap,
+    f32::consts::E,
+    fmt::{self, Debug, Display},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Errors {
@@ -9,7 +13,7 @@ pub enum Errors {
 pub enum FieldType {
     X,
     O,
-    Empty
+    Empty,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -17,7 +21,7 @@ pub enum GameResults {
     XWon,
     OWon,
     Draw,
-    InProgress
+    InProgress,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -28,7 +32,7 @@ impl FieldType {
         match self {
             FieldType::X => "X",
             FieldType::O => "O",
-            FieldType::Empty => " "
+            FieldType::Empty => " ",
         }
     }
 }
@@ -36,34 +40,48 @@ impl FieldType {
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Board {
     fields: [[FieldType; 3]; 3],
-    move_count: usize
+    move_count: usize,
+    n: usize,
 }
 
 impl Board {
-
     pub fn empty() -> Board {
         Board {
             fields: [[FieldType::Empty; 3]; 3],
-            move_count: 0
+            move_count: 0,
+            n: 3,
         }
+    }
+
+    fn get(&self, coord: Coordinate) -> FieldType {
+        let Coordinate(x, y) = coord;
+        self.fields[y][x]
     }
 
     fn move_is_valid(&self, coordinate: Coordinate) -> bool {
         let Coordinate(x, y) = coordinate;
-        x < 3 && y < 3 && self.fields[y][x] == FieldType::Empty
+        x < self.n && y < self.n && self.get(coordinate) == FieldType::Empty
     }
 
-    pub fn move_next(&self, coordinate: Coordinate, field_type: FieldType) -> Result<Board, Errors> {
+    pub fn move_next(
+        &self,
+        coordinate: Coordinate,
+        field_type: FieldType,
+    ) -> Result<Board, Errors> {
         let Coordinate(x, y) = coordinate;
         if self.move_is_valid(coordinate) {
             let mut arr = self.fields;
             arr[y][x] = field_type;
-            return Ok(Board{ fields: arr, move_count: self.move_count + 1 });
+            return Ok(Board {
+                fields: arr,
+                move_count: self.move_count + 1,
+                n: self.n,
+            });
         }
         Err(Errors::InvalidCoordinatres)
     }
 
-    fn check_result(&self, (x_count, o_count, empty_field_count): (i32, i32, i32)) -> GameResults { 
+    fn check_result(&self, (x_count, o_count): (i32, i32)) -> GameResults {
         if x_count == 3 {
             return GameResults::XWon;
         }
@@ -76,49 +94,75 @@ impl Board {
     fn check_colums(&self) -> GameResults {
         let mut x_count = 0;
         let mut o_count = 0;
-        let mut empty_field_count = 0;
-        for column in 0..3 {
-            for row in 0..3 {
-                match self.fields[row][column] {
+        for i in 0..self.n {
+            for j in 0..self.n {
+                match self.get(Coordinate(i, j)) {
                     FieldType::X => x_count += 1,
                     FieldType::O => o_count += 1,
-                    FieldType::Empty => empty_field_count += 1
+                    FieldType::Empty => {}
                 }
             }
-            let result = self.check_result((x_count, o_count, empty_field_count));
+            let result = self.check_result((x_count, o_count));
             if result != GameResults::InProgress {
                 return result;
             }
             x_count = 0;
             o_count = 0;
-            empty_field_count = 0;
         }
 
-        self.check_result((x_count, o_count, empty_field_count))
+        self.check_result((x_count, o_count))
     }
 
     fn check_rows(&self) -> GameResults {
         let mut x_count = 0;
         let mut o_count = 0;
-        let mut empty_field_count = 0;
-        for row in 0..3 {
-            for column in 0..3 {
-                match self.fields[row][column] {
+        for i in 0..self.n {
+            for j in 0..self.n {
+                match self.get(Coordinate(j, i)) {
                     FieldType::X => x_count += 1,
                     FieldType::O => o_count += 1,
-                    FieldType::Empty => empty_field_count += 1
+                    FieldType::Empty => {}
                 }
             }
-            let result = self.check_result((x_count, o_count, empty_field_count));
+            let result = self.check_result((x_count, o_count));
             if result != GameResults::InProgress {
                 return result;
             }
             x_count = 0;
             o_count = 0;
-            empty_field_count = 0;
         }
 
-        self.check_result((x_count, o_count, empty_field_count))
+        self.check_result((x_count, o_count))
+    }
+
+    fn check_diag(&self) -> GameResults {
+        let mut x_count = 0;
+        let mut o_count = 0;
+        for i in 0..3 {
+            match self.get(Coordinate(i, i)) {
+                FieldType::X => x_count += 1,
+                FieldType::O => o_count += 1,
+                FieldType::Empty => {}
+            }
+        }
+
+        let result = self.check_result((x_count, o_count));
+        if result != GameResults::InProgress {
+            return result;
+        }
+
+        x_count = 0;
+        o_count = 0;
+
+        for i in 0..self.n {
+            match self.fields[i][i] {
+                FieldType::X => x_count += 1,
+                FieldType::O => o_count += 1,
+                FieldType::Empty => {}
+            }
+        }
+
+        self.check_result((x_count, o_count))
     }
 
     pub fn check_game_result(&self) -> GameResults {
@@ -130,7 +174,7 @@ impl Board {
         if rows_result != GameResults::InProgress {
             return rows_result;
         }
-        if self.move_count == 9 {
+        if self.move_count == (self.n * self.n) {
             return GameResults::Draw;
         }
 
@@ -140,7 +184,12 @@ impl Board {
     pub fn format_board(&self) -> String {
         let mut res = String::from("");
         for (i, row) in self.fields.iter().enumerate() {
-            let text = format!(" {} | {} | {} \n", row[0].format(), row[1].format(), row[2].format());
+            let text = format!(
+                " {} | {} | {} \n",
+                row[0].format(),
+                row[1].format(),
+                row[2].format()
+            );
             res.push_str(&text);
             if i < 2 {
                 res.push_str("---+---+---\n");
@@ -231,7 +280,7 @@ mod tests {
     }
 
     #[test]
-    fn test_move_is_valid_when_coordinate_is_out_of_bound(){
+    fn test_move_is_valid_when_coordinate_is_out_of_bound() {
         let board = Board::empty();
         assert!(!board.move_is_valid(Coordinate(3, 0)));
         assert!(!board.move_is_valid(Coordinate(0, 3)));
@@ -239,7 +288,7 @@ mod tests {
     }
 
     #[test]
-    fn test_move_is_valid_when_coordinate_is_not_empty(){
+    fn test_move_is_valid_when_coordinate_is_not_empty() {
         let board = Board::empty();
         assert!(!board.move_is_valid(Coordinate(0, 0)));
     }
