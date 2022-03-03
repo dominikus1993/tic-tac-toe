@@ -1,11 +1,12 @@
-mod board;
+mod game;
 use board::*;
+use game::*;
 
 type Result<T> = std::result::Result<T, Errors>;
 
 fn main() -> Result<()>{
-    let board = Board::empty();
-    let board = board.move_next(Coordinate(0,0), FieldType::O)?;
+    let game = Game::start();
+    let board = game.board.move_next(Coordinate(0,0), FieldType::O)?;
     let board = board.move_next(Coordinate(1,0), FieldType::X)?;
     let board = board.move_next(Coordinate(2,0), FieldType::O)?;
     let board = board.move_next(Coordinate(1,1), FieldType::X)?;
