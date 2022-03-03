@@ -58,9 +58,21 @@ impl Board {
         self.fields[y][x]
     }
 
-    fn move_is_valid(&self, coordinate: Coordinate) -> bool {
+    pub fn is_move_valid(&self, coordinate: Coordinate) -> bool {
         let Coordinate(x, y) = coordinate;
         x < self.n && y < self.n && self.get(coordinate) == FieldType::Empty
+    }
+
+    pub fn get_free_coordinates(&self) -> Vec<Coordinate> {
+        let mut free_coordinates = Vec::new();
+        for y in 0..self.n {
+            for x in 0..self.n {
+                if self.get(Coordinate(x, y)) == FieldType::Empty {
+                    free_coordinates.push(Coordinate(x, y));
+                }
+            }
+        }
+        free_coordinates
     }
 
     pub fn move_next(
@@ -69,7 +81,7 @@ impl Board {
         field_type: FieldType,
     ) -> Result<Board, Errors> {
         let Coordinate(x, y) = coordinate;
-        if self.move_is_valid(coordinate) {
+        if self.is_move_valid(coordinate) {
             let mut arr = self.fields;
             arr[y][x] = field_type;
             return Ok(Board {
@@ -272,30 +284,30 @@ mod tests {
     #[test]
     fn test_move_is_valid() {
         let board = Board::empty();
-        assert!(board.move_is_valid(Coordinate(0, 0)));
-        assert!(board.move_is_valid(Coordinate(0, 1)));
-        assert!(board.move_is_valid(Coordinate(0, 2)));
-        assert!(board.move_is_valid(Coordinate(1, 0)));
-        assert!(board.move_is_valid(Coordinate(1, 1)));
-        assert!(board.move_is_valid(Coordinate(1, 2)));
-        assert!(board.move_is_valid(Coordinate(2, 0)));
-        assert!(board.move_is_valid(Coordinate(2, 1)));
-        assert!(board.move_is_valid(Coordinate(2, 2)));
+        assert!(board.is_move_valid(Coordinate(0, 0)));
+        assert!(board.is_move_valid(Coordinate(0, 1)));
+        assert!(board.is_move_valid(Coordinate(0, 2)));
+        assert!(board.is_move_valid(Coordinate(1, 0)));
+        assert!(board.is_move_valid(Coordinate(1, 1)));
+        assert!(board.is_move_valid(Coordinate(1, 2)));
+        assert!(board.is_move_valid(Coordinate(2, 0)));
+        assert!(board.is_move_valid(Coordinate(2, 1)));
+        assert!(board.is_move_valid(Coordinate(2, 2)));
     }
 
     #[test]
     fn test_move_is_valid_when_coordinate_is_out_of_bound() {
         let board = Board::empty();
-        assert!(!board.move_is_valid(Coordinate(3, 0)));
-        assert!(!board.move_is_valid(Coordinate(0, 3)));
-        assert!(!board.move_is_valid(Coordinate(3, 3)));
+        assert!(!board.is_move_valid(Coordinate(3, 0)));
+        assert!(!board.is_move_valid(Coordinate(0, 3)));
+        assert!(!board.is_move_valid(Coordinate(3, 3)));
     }
 
     #[test]
     fn test_move_is_valid_when_coordinate_is_not_empty() {
         let board = Board::empty();
         let board = board.move_next(Coordinate(0, 0), FieldType::X).unwrap();
-        assert!(!board.move_is_valid(Coordinate(0, 0)));
+        assert!(!board.is_move_valid(Coordinate(0, 0)));
     }
 
     #[test]
