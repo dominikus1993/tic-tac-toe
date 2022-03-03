@@ -1,12 +1,13 @@
 use std::{
     collections::HashMap,
     f32::consts::E,
-    fmt::{self, Debug, Display},
+    fmt::{self, Debug, Display}, str::FromStr,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Errors {
     InvalidCoordinatres,
+    ParseCoordinatesError
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -26,6 +27,21 @@ pub enum GameResults {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Coordinate(pub usize, pub usize);
+
+
+impl FromStr for Coordinate {
+    type Err = Errors;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut split = s.split(',');
+        let x = split.next().ok_or(Errors::ParseCoordinatesError)?;
+        let y = split.next().ok_or(Errors::ParseCoordinatesError)?;
+        let x = x.parse::<usize>().map_err(|_| Errors::ParseCoordinatesError)?;
+        let y = y.parse::<usize>().map_err(|_| Errors::ParseCoordinatesError)?;
+        Ok(Coordinate(x, y))
+    }
+}
+
 
 impl FieldType {
     pub fn format(&self) -> &str {

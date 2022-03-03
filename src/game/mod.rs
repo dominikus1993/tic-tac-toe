@@ -27,6 +27,13 @@ impl Game {
         }
     }
 
+    fn read_stdin() -> GameResult<Coordinate> {
+        let mut input = String::new();
+        std::io::stdin().read_line(&mut input).unwrap();
+        let input = input.trim();
+        input.parse::<Coordinate>()?
+    }
+
     pub fn move_next(&self) -> GameResult<()> {
         loop {
             let p1 = cpu::run_advanced_ai_move(self.board.get());
