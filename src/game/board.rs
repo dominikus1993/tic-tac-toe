@@ -94,12 +94,12 @@ impl Board {
     pub fn move_next(
         &self,
         coordinate: Coordinate,
-        field_type: FieldType,
+        field_type: &FieldType,
     ) -> Result<Board, Errors> {
         let Coordinate(x, y) = coordinate;
         if self.is_move_valid(coordinate) {
             let mut arr = self.fields;
-            arr[y][x] = field_type;
+            arr[y][x] = field_type.clone();
             return Ok(Board {
                 fields: arr,
                 move_count: self.move_count + 1,
@@ -274,9 +274,9 @@ mod tests {
    |   |   
 "#;
         let board = Board::empty();
-        let board = board.move_next(Coordinate(0, 0), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(1, 0), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(2, 0), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0, 0), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(1, 0), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(2, 0), &FieldType::X).unwrap();
         let subject = board.format_board();
         assert_eq!(expected, subject);
     }
@@ -290,9 +290,9 @@ mod tests {
  X |   |   
 "#;
         let board = Board::empty();
-        let board = board.move_next(Coordinate(0, 0), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(0, 1), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(0, 2), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0, 0), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0, 1), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0, 2), &FieldType::X).unwrap();
         let subject = board.format_board();
         assert_eq!(expected, subject);
     }
@@ -322,14 +322,14 @@ mod tests {
     #[test]
     fn test_move_is_valid_when_coordinate_is_not_empty() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(0, 0), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0, 0), &FieldType::X).unwrap();
         assert!(!board.is_move_valid(Coordinate(0, 0)));
     }
 
     #[test]
     fn test_set_field() {
         let board = Board::empty();
-        let subject = board.move_next(Coordinate(0, 0), FieldType::X).unwrap();
+        let subject = board.move_next(Coordinate(0, 0), &FieldType::X).unwrap();
         assert_eq!(FieldType::X, subject.fields[0][0]);
         assert_eq!(subject.move_count, 1);
     }
@@ -337,59 +337,59 @@ mod tests {
     #[test]
     fn test_set_field_when_coordinates_is_invalid() {
         let board = Board::empty();
-        let result = board.move_next(Coordinate(0, 5), FieldType::X);
+        let result = board.move_next(Coordinate(0, 5), &FieldType::X);
         assert!(result.is_err());
     }
 
     #[test]
     fn test_check_colums_result() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(0, 0), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(0, 1), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(0, 2), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0, 0), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0, 1), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0, 2), &FieldType::X).unwrap();
         assert_eq!(board.check_colums(), GameResults::XWon);
     }
 
     #[test]
     fn test_check_columns_result_when_o_wins() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(1, 0), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(1, 1), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(1, 2), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 0), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 1), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 2), &FieldType::O).unwrap();
         assert_eq!(board.check_colums(), GameResults::OWon);
     }
 
     #[test]
     fn test_check_columns_result_when_in_progress() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(1, 0), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(1, 1), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 0), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 1), &FieldType::O).unwrap();
         assert_eq!(board.check_colums(), GameResults::InProgress);
     }
 
     #[test]
     fn test_check_rows_result() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(0, 0), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(1, 0), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(2, 0), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0, 0), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(1, 0), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(2, 0), &FieldType::X).unwrap();
         assert_eq!(board.check_rows(), GameResults::XWon);
     }
 
     #[test]
     fn test_check_crows_result_when_o_wins() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(0, 1), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(1, 1), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(2, 1), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(0, 1), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 1), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(2, 1), &FieldType::O).unwrap();
         assert_eq!(board.check_rows(), GameResults::OWon);
     }
 
     #[test]
     fn test_check_rows_result_when_in_progress() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(1, 0), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(1, 1), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 0), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 1), &FieldType::O).unwrap();
         assert_eq!(board.check_rows(), GameResults::InProgress);
     }
 
@@ -398,41 +398,41 @@ mod tests {
     #[test]
     fn test_check_diag_result() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(0, 0), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(1, 1), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(2, 2), FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0, 0), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(1, 1), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(2, 2), &FieldType::X).unwrap();
         assert_eq!(board.check_diag(), GameResults::XWon);
     }
 
     #[test]
     fn test_check_diag_result_when_o_wins() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(2, 0), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(1, 1), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(0, 2), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(2, 0),&FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 1),&FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(0, 2),&FieldType::O).unwrap();
         assert_eq!(board.check_diag(), GameResults::OWon);
     }
 
     #[test]
     fn test_check_diag_result_when_in_progress() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(0, 0), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(1, 1), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(0, 0), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1, 1), &FieldType::O).unwrap();
         assert_eq!(board.check_diag(), GameResults::InProgress);
     }
 
     #[test]
     fn test_draw_result() {
         let board = Board::empty();
-        let board = board.move_next(Coordinate(0,0), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(1,0), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(2,0), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(1,1), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(2,1), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(0,2), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(1,2), FieldType::O).unwrap();
-        let board = board.move_next(Coordinate(2,2), FieldType::X).unwrap();
-        let board = board.move_next(Coordinate(0,1), FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(0,0), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1,0), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(2,0), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(1,1), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(2,1), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(0,2), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(1,2), &FieldType::O).unwrap();
+        let board = board.move_next(Coordinate(2,2), &FieldType::X).unwrap();
+        let board = board.move_next(Coordinate(0,1), &FieldType::O).unwrap();
         assert_eq!(board.check_game_result(), GameResults::Draw);
     }
 }
