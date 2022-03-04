@@ -99,7 +99,7 @@ impl Board {
         let Coordinate(x, y) = coordinate;
         if self.is_move_valid(coordinate) {
             let mut arr = self.fields;
-            arr[y][x] = field_type.clone();
+            arr[y][x] = *field_type;
             return Ok(Board {
                 fields: arr,
                 move_count: self.move_count + 1,
