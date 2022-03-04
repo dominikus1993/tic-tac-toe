@@ -7,9 +7,9 @@ pub enum Player{
 } 
 
 fn read_stdin(board : Board, f: &FieldType) -> Option<Coordinate> {
-    let mut input = String::new();
     println!("{} Wybierz koordynaty: x,y ", f.format());
     loop {
+        let mut input = String::new();
         std::io::stdin().read_line(&mut input).unwrap();
         let input = input.trim();
         let res = input.parse::<Coordinate>();
@@ -18,10 +18,10 @@ fn read_stdin(board : Board, f: &FieldType) -> Option<Coordinate> {
                 if board.is_move_valid(c) {
                     return Some(c);
                 }
-                println!("Nieprawidlowe koordynaty");
+                println!("Nieprawidlowe koordynaty w");
             },
-            Err(_) => {
-                println!("Nieprawidlowe koordynaty");
+            Err(e) => {
+                println!("Nieprawidlowe koordynaty {:?}", e);
             }
         }
     }
